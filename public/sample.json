@@ -1,0 +1,30 @@
+{
+  "company": {
+    "name": "Tech Innovations Ltd",
+    "founded": 2020,
+    "location": {
+      "city": "San Francisco",
+      "country": "USA",
+      "coordinates": {
+        "lat": 37.7749,
+        "lng": -122.4194
+      }
+    },
+    "departments": [
+      {
+        "name": "Engineering",
+        "employees": 50,
+        "teams": ["Frontend", "Backend", "DevOps"]
+      },
+      {
+        "name": "Marketing",
+        "employees": 20,
+        "campaigns": {
+          "current": "Summer Sale",
+          "upcoming": ["Black Friday", "Holiday Special"]
+        }
+      }
+    ],
+    "active": true
+  }
+} 
