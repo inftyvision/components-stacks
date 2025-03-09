@@ -4,12 +4,13 @@ import { useState, useEffect } from 'react';
 import JsonViewer from './components/JsonViewer/JsonViewer';
 import MarkdownEditor from './components/MarkdownEditor/MarkdownEditor';
 import HtmlPreview from './components/HtmlPreview/HtmlPreview';
+import GlbViewer from './components/GlbViewer/GlbViewer';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null);
   const [markdownContent, setMarkdownContent] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html'>('json');
+  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d'>('json');
 
   // Fetch the JSON data when the component mounts
   useEffect(() => {
@@ -38,7 +39,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-white">Component Stacks</h1>
           <p className="text-lg text-gray-300">
-            Edit and preview JSON, Markdown, and HTML content
+            Edit and preview JSON, Markdown, HTML, and 3D content
           </p>
         </div>
 
@@ -73,6 +74,16 @@ export default function Home() {
           >
             HTML Preview
           </button>
+          <button
+            onClick={() => setActiveTab('3d')}
+            className={`px-6 py-3 rounded-lg transition-colors ${
+              activeTab === '3d'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            3D Viewer
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -93,8 +104,10 @@ export default function Home() {
                 content={markdownContent}
                 onChange={(newContent) => setMarkdownContent(newContent)}
               />
-            ) : (
+            ) : activeTab === 'html' ? (
               <HtmlPreview />
+            ) : (
+              <GlbViewer />
             )}
           </motion.div>
         </AnimatePresence>
