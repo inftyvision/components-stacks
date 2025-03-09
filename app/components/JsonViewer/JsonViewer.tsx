@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import JsonVisualView from './JsonVisualView';
@@ -12,16 +12,56 @@ interface JsonViewerProps {
 export default function JsonViewer({ data, onDataChange }: JsonViewerProps) {
   const [isVisualView, setIsVisualView] = useState(true);
   const [jsonData, setJsonData] = useState(data);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
 
-  const handleDataChange = (newData: any) => {
+  const handleDataChange = useCallback(async (newData: any) => {
     setJsonData(newData);
     onDataChange?.(newData);
-  };
+
+    // Auto-save to file
+    try {
+      setSaveStatus('saving');
+      const response = await fetch('/api/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save');
+      }
+
+      setSaveStatus('saved');
+    } catch (error) {
+      console.error('Error saving:', error);
+      setSaveStatus('error');
+      
+      // Reset status after 3 seconds
+      setTimeout(() => {
+        setSaveStatus('saved');
+      }, 3000);
+    }
+  }, [onDataChange]);
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">JSON Viewer</h2>
+        <div className="flex items-center space-x-4">
+          <h2 className="text-xl font-semibold text-gray-800">JSON Viewer</h2>
+          <div className="text-sm">
+            {saveStatus === 'saving' && (
+              <span className="text-yellow-600">Saving...</span>
+            )}
+            {saveStatus === 'saved' && (
+              <span className="text-green-600">All changes saved</span>
+            )}
+            {saveStatus === 'error' && (
+              <span className="text-red-600">Error saving changes</span>
+            )}
+          </div>
+        </div>
         <div className="flex space-x-2">
           <button
             onClick={() => setIsVisualView(true)}
