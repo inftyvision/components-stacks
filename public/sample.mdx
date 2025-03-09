@@ -1,0 +1,233 @@
+# Introduction
+
+Welcome to our documentation! This guide will walk you through various features and capabilities.
+
+## Overview
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+
+### Key Points
+
+1. **First Point**: Lorem ipsum dolor sit amet
+2. **Second Point**: Consectetur adipiscing elit
+3. **Third Point**: Sed do eiusmod tempor
+
+> **Important Note**: Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+# Getting Started
+
+## Quick Start Guide
+
+Here's how to get started with our platform:
+
+1. **Installation**
+   ```bash
+   npm install @acme/core
+   npm install @acme/ui
+   ```
+
+2. **Basic Setup**
+   ```typescript
+   import { Core, UI } from '@acme/platform';
+
+   const app = new Core({
+     theme: 'dark',
+     features: ['markdown', 'preview']
+   });
+   ```
+
+### Configuration Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `theme` | string | `'light'` | UI theme to use |
+| `features` | string[] | `[]` | Enabled features |
+| `debug` | boolean | `false` | Enable debug mode |
+
+# Advanced Features
+
+## Code Examples
+
+Here's a complex TypeScript example:
+
+```typescript
+interface Document {
+  id: string;
+  title: string;
+  metadata: {
+    author: string;
+    created: Date;
+    tags: string[];
+  };
+  content: {
+    body: string;
+    format: 'md' | 'html';
+    excerpt?: string;
+  };
+}
+
+class DocumentManager {
+  private docs: Map<string, Document>;
+
+  constructor() {
+    this.docs = new Map();
+  }
+
+  async createDocument(doc: Omit<Document, 'id'>): Promise<string> {
+    const id = crypto.randomUUID();
+    this.docs.set(id, { ...doc, id });
+    return id;
+  }
+}
+```
+
+## Styling Examples
+
+You can use various text styles:
+- *Italic text* for emphasis
+- **Bold text** for strong emphasis
+- ***Bold italic*** for extra emphasis
+- `inline code` for technical terms
+- ~~Strikethrough~~ for outdated info
+
+## Lists and Quotes
+
+### Unordered Lists
+- First item
+  - Nested item 1
+  - Nested item 2
+- Second item
+  - Nested item 1
+    - Deep nested item
+- Third item
+
+### Ordered Lists
+1. First step
+   1. Sub-step one
+   2. Sub-step two
+2. Second step
+   - Important note
+   - Another note
+3. Third step
+
+### Blockquotes
+
+> This is a simple blockquote
+> 
+> It can span multiple lines
+> 
+> > And can be nested
+> > 
+> > *With formatting*
+
+# Best Practices
+
+## Performance Tips
+
+1. **Optimization**
+   - Cache frequently used data
+   - Use efficient algorithms
+   - Implement lazy loading
+
+2. **Code Quality**
+   ```typescript
+   // Good
+   const getUserById = async (id: string): Promise<User> => {
+     return await db.users.findUnique({ where: { id } });
+   };
+
+   // Bad
+   const getUser = async (id) => {
+     const users = await db.users.findMany();
+     return users.find(u => u.id === id);
+   };
+   ```
+
+## Security Guidelines
+
+> ⚠️ **Warning**: Always follow these security practices:
+> - Validate user input
+> - Use proper authentication
+> - Implement rate limiting
+> - Keep dependencies updated
+
+### Common Pitfalls
+
+| Issue | Impact | Prevention |
+|-------|---------|------------|
+| XSS | High | Sanitize input |
+| CSRF | Medium | Use tokens |
+| SQL Injection | Critical | Use ORM |
+| Auth Bypass | Critical | Test thoroughly |
+
+# Customization
+
+At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi.
+
+## Theming
+
+### Light Theme
+```css
+.theme-light {
+  --bg-color: #ffffff;
+  --text-color: #2d3748;
+  --accent-color: #4a90e2;
+}
+```
+
+### Dark Theme
+```css
+.theme-dark {
+  --bg-color: #1a202c;
+  --text-color: #e2e8f0;
+  --accent-color: #63b3ed;
+}
+```
+
+## Extensions
+
+Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus:
+
+1. **Syntax Highlighting**
+   - Multiple language support
+   - Custom color schemes
+   - Auto-detection
+
+2. **Auto-formatting**
+   - Consistent spacing
+   - Proper indentation
+   - Clean markup
+
+# Model Details
+model: /glb/sample.glb
+
+This section provides detailed information about the model's features:
+
+## Key Features
+- High-quality textures
+- Optimized geometry
+- PBR materials
+- Realistic lighting
+
+## Technical Specifications
+- Polygon count: 10,000
+- Texture resolution: 2K
+- File format: GLB
+
+# Usage Guidelines
+
+This page doesn't have a model associated with it, so you'll see a placeholder.
+
+## Implementation
+
+Here's how to use the model in your project:
+1. Import the GLB file
+2. Set up proper lighting
+3. Configure materials
+4. Add interactivity
+
+## Best Practices
+- Keep polygon count optimized
+- Use appropriate texture sizes
+- Implement level of detail
+- Consider mobile performance 

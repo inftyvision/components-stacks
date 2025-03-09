@@ -1,9 +1,10 @@
 import './globals.css'
+import './styles/prism-theme.css'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Components Stacks',
-  description: 'A modern Next.js application with various component stacks',
+  title: 'Component Stacks',
+  description: 'A collection of reusable components',
 }
 
 export default function RootLayout({

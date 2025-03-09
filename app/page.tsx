@@ -5,14 +5,16 @@ import JsonViewer from './components/JsonViewer/JsonViewer';
 import MarkdownEditor from './components/MarkdownEditor/MarkdownEditor';
 import HtmlPreview from './components/HtmlPreview/HtmlPreview';
 import GlbViewer from './components/GlbViewer/GlbViewer';
+import MdxViewer from './components/MdxViewer/MdxViewer';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null);
   const [markdownContent, setMarkdownContent] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d'>('json');
+  const [mdxContent, setMdxContent] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d' | 'mdx'>('json');
 
-  // Fetch the JSON data when the component mounts
+  // Fetch the data when the component mounts
   useEffect(() => {
     fetch(window.location.origin + '/sample.json')
       .then(res => res.json())
@@ -23,9 +25,14 @@ export default function Home() {
       .then(res => res.text())
       .then(content => setMarkdownContent(content))
       .catch(err => console.error('Error loading markdown:', err));
-  }, []); // Empty dependency array for mounting only
 
-  if (!jsonData || !markdownContent) {
+    fetch(window.location.origin + '/sample.mdx')
+      .then(res => res.text())
+      .then(content => setMdxContent(content))
+      .catch(err => console.error('Error loading MDX:', err));
+  }, []);
+
+  if (!jsonData || !markdownContent || !mdxContent) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-900">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
@@ -39,7 +46,7 @@ export default function Home() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-white">Component Stacks</h1>
           <p className="text-lg text-gray-300">
-            Edit and preview JSON, Markdown, HTML, and 3D content
+            Edit and preview JSON, Markdown, HTML, 3D models, and MDX content
           </p>
         </div>
 
@@ -84,6 +91,16 @@ export default function Home() {
           >
             3D Viewer
           </button>
+          <button
+            onClick={() => setActiveTab('mdx')}
+            className={`px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'mdx'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            MDX Viewer
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -106,8 +123,10 @@ export default function Home() {
               />
             ) : activeTab === 'html' ? (
               <HtmlPreview />
+            ) : activeTab === '3d' ? (
+              <GlbViewer modelPath="/glb/sample.glb" />
             ) : (
-              <GlbViewer />
+              <MdxViewer content={mdxContent} />
             )}
           </motion.div>
         </AnimatePresence>

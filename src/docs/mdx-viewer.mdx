@@ -1,0 +1,300 @@
+# MDX Viewer Component
+
+The MDX Viewer is a powerful documentation viewer that renders MDX content with rich formatting, syntax highlighting, and page navigation.
+
+## Features
+
+- Rich MDX rendering
+- Custom theme support
+- Page-based navigation
+- Code syntax highlighting
+- Responsive design
+- Keyboard navigation
+- Custom typography
+
+## Installation
+
+```bash
+npm install @mdx-js/react react-markdown remark-gfm
+```
+
+## Basic Usage
+
+```typescript
+import MdxViewer from '../components/MdxViewer';
+
+function Documentation() {
+  return (
+    <MdxViewer content={`
+      # Introduction
+      
+      Welcome to the documentation.
+      
+      ## Getting Started
+      
+      Here's a code example:
+      
+      \`\`\`typescript
+      function hello(name: string) {
+        console.log(\`Hello, \${name}!\`);
+      }
+      \`\`\`
+    `} />
+  );
+}
+```
+
+## Component API
+
+### Props
+
+```typescript
+interface MdxViewerProps {
+  /**
+   * The MDX content to render
+   */
+  content: string;
+
+  /**
+   * Optional theme overrides
+   */
+  theme?: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+  };
+}
+```
+
+### Styling
+
+The component uses CSS variables for theming:
+
+```css
+.mdx-content {
+  --primary-color: #60a5fa;
+  --secondary-color: #f472b6;
+  --bg-primary: #1a1b26;
+  --bg-secondary: #24283b;
+  --text-primary: #c0caf5;
+  --text-secondary: #9aa5ce;
+  --text-heading: #ffffff;
+  --code-bg: #1f2335;
+  --quote-bg: #292e42;
+  --border-color: #414868;
+}
+```
+
+## Content Structure
+
+The viewer splits content into pages based on h1 headers:
+
+```markdown
+# Page 1 Title
+Content for page 1...
+
+## Section 1.1
+More content...
+
+# Page 2 Title
+Content for page 2...
+
+## Section 2.1
+More content...
+```
+
+## Supported Markdown Features
+
+1. **Headers**
+   ```markdown
+   # H1 Title
+   ## H2 Subtitle
+   ### H3 Section
+   ```
+
+2. **Emphasis**
+   ```markdown
+   *italic text*
+   **bold text**
+   ***bold italic text***
+   ```
+
+3. **Lists**
+   ```markdown
+   - Unordered item
+     - Nested item
+       - Deep nested item
+   
+   1. Ordered item
+      1. Nested ordered
+      2. Another nested
+   ```
+
+4. **Code Blocks**
+   ````markdown
+   ```typescript
+   function example() {
+     return "Hello, World!";
+   }
+   ```
+   ````
+
+5. **Blockquotes**
+   ```markdown
+   > Single quote
+   > > Nested quote
+   ```
+
+6. **Tables**
+   ```markdown
+   | Header 1 | Header 2 |
+   |----------|----------|
+   | Cell 1   | Cell 2   |
+   ```
+
+## Keyboard Navigation
+
+- `←` / `→`: Navigate between pages
+- `Home`: Go to first page
+- `End`: Go to last page
+- `Ctrl + ←`: Previous page
+- `Ctrl + →`: Next page
+
+## Best Practices
+
+1. **Content Organization**
+   - Use h1 headers for main pages
+   - Keep content focused
+   - Use descriptive titles
+   - Include examples
+
+2. **Code Examples**
+   - Use syntax highlighting
+   - Keep examples concise
+   - Include comments
+   - Show usage patterns
+
+3. **Styling**
+   - Use consistent formatting
+   - Follow spacing guidelines
+   - Use theme variables
+   - Test responsiveness
+
+## Examples
+
+### Basic Documentation
+
+```markdown
+# Getting Started
+
+Welcome to our documentation.
+
+## Installation
+
+\`\`\`bash
+npm install @our/package
+\`\`\`
+
+## Usage
+
+\`\`\`typescript
+import { Component } from '@our/package';
+
+function App() {
+  return <Component />;
+}
+\`\`\`
+```
+
+### Rich Content
+
+```markdown
+# Advanced Features
+
+## Code Examples
+
+\`\`\`typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+}
+
+function getUser(id: string): Promise<User> {
+  return api.users.find(id);
+}
+\`\`\`
+
+## Important Notes
+
+> ⚠️ Remember to handle errors appropriately
+> 
+> ```typescript
+> try {
+>   const user = await getUser(id);
+> } catch (error) {
+>   console.error('Failed to fetch user:', error);
+> }
+> ```
+
+## Configuration
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `theme` | string | `'dark'` | UI theme |
+| `debug` | boolean | `false` | Debug mode |
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Content Not Rendering**
+   - Check content format
+   - Verify MDX syntax
+   - Check console errors
+
+2. **Styling Issues**
+   - Verify theme variables
+   - Check CSS specificity
+   - Inspect element styles
+
+3. **Navigation Problems**
+   - Check h1 headers
+   - Verify content structure
+   - Check event handlers
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+
+## Performance
+
+The component is optimized for:
+- Large documents
+- Code highlighting
+- Page transitions
+- Memory usage
+
+## Accessibility
+
+The component follows WCAG guidelines:
+- Proper heading structure
+- Keyboard navigation
+- ARIA attributes
+- Color contrast
+
+## Contributing
+
+1. Fork the repository
+2. Create feature branch
+3. Make changes
+4. Submit pull request
+
+## License
+
+MIT License 
