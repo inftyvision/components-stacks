@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import type { ComponentProps } from 'react';
+import clsx from 'clsx';
+import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import '../../styles/mdx-theme.css';
 
 interface MdxViewerProps {
@@ -88,9 +90,9 @@ export default function MdxViewer({ content }: MdxViewerProps) {
 
   if (pages.length === 0) {
     return (
-      <div className="mdx-content">
+      <div className="bg-card p-6">
         <div className="flex h-[600px] items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-color"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
         </div>
       </div>
     );
@@ -99,11 +101,41 @@ export default function MdxViewer({ content }: MdxViewerProps) {
   const currentPageData = pages[currentPage];
 
   return (
-    <div className="mdx-content">
-      <div className="page-header">
-        <h2 className="page-title">{currentPageData.title}</h2>
-        <div className="page-number">
-          Page {currentPage + 1} of {pages.length}
+    <div className="bg-card">
+      <div className="flex items-center justify-between p-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-xl font-medium text-card-foreground truncate">
+            {currentPageData.title}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Page {currentPage + 1} of {pages.length}
+          </p>
+        </div>
+        <div className="flex space-x-2">
+          <button
+            onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
+            disabled={currentPage === 0}
+            className={clsx(
+              "px-4 py-2 rounded-lg transition-colors",
+              currentPage === 0
+                ? "bg-indigo-600 text-white opacity-50 cursor-not-allowed"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            )}
+          >
+            Previous
+          </button>
+          <button
+            onClick={() => setCurrentPage(p => Math.min(pages.length - 1, p + 1))}
+            disabled={currentPage === pages.length - 1}
+            className={clsx(
+              "px-4 py-2 rounded-lg transition-colors",
+              currentPage === pages.length - 1
+                ? "bg-indigo-600 text-white opacity-50 cursor-not-allowed"
+                : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+            )}
+          >
+            Next
+          </button>
         </div>
       </div>
       
@@ -114,38 +146,17 @@ export default function MdxViewer({ content }: MdxViewerProps) {
         exit={{ opacity: 0, y: -20 }}
         transition={{ duration: 0.2 }}
       >
-        <div className="content-container">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            components={components}
-          >
-            {currentPageData.content}
-          </ReactMarkdown>
+        <div className="p-6">
+          <div className="content-container">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={components}
+            >
+              {currentPageData.content}
+            </ReactMarkdown>
+          </div>
         </div>
       </motion.div>
-
-      <div className="mt-8 nav-buttons">
-        <button
-          onClick={() => setCurrentPage(p => Math.max(0, p - 1))}
-          disabled={currentPage === 0}
-          className="nav-button"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Previous
-        </button>
-        <button
-          onClick={() => setCurrentPage(p => Math.min(pages.length - 1, p + 1))}
-          disabled={currentPage === pages.length - 1}
-          className="nav-button"
-        >
-          Next
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
     </div>
   );
 } 
