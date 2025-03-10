@@ -1,0 +1,186 @@
+'use client';
+
+import { useState } from 'react';
+import ReactMarkdown, { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeRaw from 'rehype-raw';
+import type { ComponentProps } from 'react';
+import { ClipboardIcon, CheckIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/outline';
+import clsx from 'clsx';
+import React from 'react';
+
+interface AdvancedMarkdownProps {
+  content: string;
+  onCopy?: (text: string) => void;
+  onZoom?: (level: number) => void;
+  className?: string;
+}
+
+interface MarkdownComponentProps extends React.HTMLAttributes<HTMLElement> {
+  node?: any;
+  children?: React.ReactNode;
+  inline?: boolean;
+}
+
+const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, onZoom, className }) => {
+  const [copiedMap, setCopiedMap] = useState<Record<string, boolean>>({});
+  const [zoomLevel, setZoomLevel] = useState(1);
+
+  const handleCopy = async (text: string, blockId: string) => {
+    await navigator.clipboard.writeText(text);
+    setCopiedMap(prev => ({ ...prev, [blockId]: true }));
+    setTimeout(() => {
+      setCopiedMap(prev => ({ ...prev, [blockId]: false }));
+    }, 2000);
+    onCopy?.(text);
+  };
+
+  const handleZoom = (delta: number) => {
+    const newLevel = Math.max(0.5, Math.min(2, zoomLevel + delta));
+    setZoomLevel(newLevel);
+    onZoom?.(newLevel);
+  };
+
+  const components: Components = {
+    h1: (props: MarkdownComponentProps) => (
+      <h1 
+        {...props} 
+        className="text-2xl font-bold text-card-foreground mb-6 pb-2 border-b border-border"
+      />
+    ),
+    h2: (props: MarkdownComponentProps) => (
+      <h2 
+        {...props} 
+        className="text-xl font-semibold text-card-foreground mt-8 mb-4"
+      />
+    ),
+    h3: (props: MarkdownComponentProps) => (
+      <h3 
+        {...props} 
+        className="text-lg font-medium text-card-foreground mt-6 mb-3"
+      />
+    ),
+    p: (props: MarkdownComponentProps) => (
+      <p 
+        {...props} 
+        className="text-base text-card-foreground leading-relaxed mb-4"
+      />
+    ),
+    ul: (props: MarkdownComponentProps) => (
+      <ul 
+        {...props} 
+        className="list-disc list-inside space-y-2 mb-4 ml-4"
+      />
+    ),
+    ol: (props: MarkdownComponentProps) => (
+      <ol 
+        {...props} 
+        className="list-decimal list-inside space-y-2 mb-4 ml-4"
+      />
+    ),
+    li: (props: MarkdownComponentProps) => (
+      <li 
+        {...props} 
+        className="text-card-foreground leading-relaxed"
+      />
+    ),
+    code: ({ inline, className, children, ...props }: MarkdownComponentProps) => {
+      const content = React.Children.toArray(children).join('').trim();
+      
+      if (!content) return null;
+      
+      return (
+        <code
+          className={clsx(
+            inline ? "px-1.5 py-0.5 rounded-md" : "",
+            "bg-code-bg font-mono text-sm",
+            className
+          )}
+          {...props}
+        >
+          {content}
+        </code>
+      );
+    },
+    pre: ({ children, ...props }) => (
+      <pre 
+        className={clsx(
+          "my-6 p-4 rounded-lg bg-code-bg",
+          "border border-border"
+        )}
+        {...props}
+      >
+        {children}
+      </pre>
+    ),
+    blockquote: props => (
+      <blockquote 
+        {...props} 
+        className="border-l-4 border-primary pl-4 italic text-muted-foreground my-6 py-2"
+      />
+    ),
+    a: props => (
+      <a
+        target="_blank"
+        rel="noopener noreferrer"
+        {...props}
+        className="text-primary hover:text-primary/80 underline underline-offset-4"
+      />
+    ),
+    strong: props => (
+      <strong 
+        {...props} 
+        className="font-semibold text-card-foreground"
+      />
+    ),
+    em: props => (
+      <em 
+        {...props} 
+        className="italic text-card-foreground"
+      />
+    ),
+    table: props => (
+      <div className="my-6 w-full">
+        <table {...props} className="w-full border-collapse" />
+      </div>
+    ),
+    th: props => (
+      <th 
+        {...props} 
+        className="border border-border bg-background px-4 py-2 text-left font-medium"
+      />
+    ),
+    td: props => (
+      <td 
+        {...props} 
+        className="border border-border px-4 py-2"
+      />
+    ),
+    hr: () => (
+      <hr className="my-8 border-border" />
+    ),
+    img: props => (
+      <img
+        {...props}
+        className="max-w-full h-auto rounded-lg shadow-sm my-6"
+        loading="lazy"
+      />
+    ),
+  };
+
+  return (
+    <div className={clsx("prose prose-invert max-w-none", className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkParse]}
+        rehypePlugins={[rehypeRaw]}
+        components={components}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+};
+
+export default AdvancedMarkdown; 

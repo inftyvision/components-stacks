@@ -6,13 +6,14 @@ import MarkdownEditor from './components/MarkdownEditor/MarkdownEditor';
 import HtmlPreview from './components/HtmlPreview/HtmlPreview';
 import GlbViewer from './components/GlbViewer/GlbViewer';
 import MdxViewer from './components/MdxViewer/MdxViewer';
+import AdvancedMdxViewer from './components/AdvancedMdxViewer/AdvancedMdxViewer';
 import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null);
   const [markdownContent, setMarkdownContent] = useState<string>('');
   const [mdxContent, setMdxContent] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d' | 'mdx'>('json');
+  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d' | 'mdx' | 'advanced-mdx'>('json');
 
   // Fetch the data when the component mounts
   useEffect(() => {
@@ -101,6 +102,16 @@ export default function Home() {
           >
             MDX Viewer
           </button>
+          <button
+            onClick={() => setActiveTab('advanced-mdx')}
+            className={`px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'advanced-mdx'
+                ? 'bg-indigo-600 text-white'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+            }`}
+          >
+            Advanced MDX
+          </button>
         </div>
 
         <AnimatePresence mode="wait">
@@ -125,8 +136,10 @@ export default function Home() {
               <HtmlPreview />
             ) : activeTab === '3d' ? (
               <GlbViewer modelPath="/glb/sample.glb" />
-            ) : (
+            ) : activeTab === 'mdx' ? (
               <MdxViewer content={mdxContent} />
+            ) : (
+              <AdvancedMdxViewer content={mdxContent} />
             )}
           </motion.div>
         </AnimatePresence>
