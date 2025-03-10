@@ -117,6 +117,13 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
     let currentContent: string[] = [];
     let currentHeight = 0;
     let currentHeader = '';
+    let listContext = {
+      buffer: '',
+      inList: false,
+      isOrdered: false,
+      indent: 0,
+      counter: 0
+    };
 
     // Helper function to finalize current page
     const finalizePage = () => {
@@ -129,9 +136,9 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
     };
 
     // Helper function to add content with height tracking
-    const addContent = (content: string) => {
+    const addContent = (content: string, forceNewPage = false) => {
       const elementHeight = measureElement(content);
-      if (currentHeight + elementHeight > availableHeight * 0.9) {
+      if (forceNewPage || currentHeight + elementHeight > availableHeight * 0.9) {
         finalizePage();
         // If this is a continuation page
         if (currentHeader) {
@@ -140,6 +147,39 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
       }
       currentContent.push(content);
       currentHeight += elementHeight;
+    };
+
+    // Helper function to handle list items
+    const handleListItem = (line: string, isLast: boolean) => {
+      const orderedMatch = line.match(/^(\s*)(\d+)\.\s/);
+      const unorderedMatch = line.match(/^(\s*)[-*+]\s/);
+      const indent = (orderedMatch || unorderedMatch)?.[1]?.length || 0;
+      const isOrdered = !!orderedMatch;
+
+      // If this is a new list or different type of list
+      if (!listContext.inList || listContext.isOrdered !== isOrdered || indent < listContext.indent) {
+        if (listContext.buffer) {
+          addContent(listContext.buffer);
+          listContext.buffer = '';
+        }
+        listContext.inList = true;
+        listContext.isOrdered = isOrdered;
+        listContext.indent = indent;
+        listContext.counter = isOrdered ? parseInt(orderedMatch![2]) : 0;
+      }
+
+      // Add to list buffer
+      if (listContext.buffer) {
+        listContext.buffer += '\n';
+      }
+      listContext.buffer += line;
+
+      // If this is the last line or indent changes, flush the buffer
+      if (isLast) {
+        addContent(listContext.buffer);
+        listContext.buffer = '';
+        listContext.inList = false;
+      }
     };
 
     // Process each block
@@ -158,27 +198,55 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
         let currentLine = '';
         
         lines.forEach((line, index) => {
-          // Check if this is a special element (like code block, list, etc)
+          const isLast = index === lines.length - 1;
+          const isList = line.match(/^(\s*)([-*+]|\d+\.)\s/);
           const isCodeBlock = line.startsWith('```');
-          const isList = line.match(/^(\s*[-*+]|\d+\.)\s/);
           const isQuote = line.startsWith('>');
-          
-          if (isCodeBlock || isList || isQuote || line.trim() === '') {
-            // If we have accumulated normal text, add it first
+          const isEmptyLine = line.trim() === '';
+
+          // Handle list items
+          if (isList) {
+            // If we have accumulated text, add it first
             if (currentLine) {
               addContent(currentLine);
               currentLine = '';
             }
-            // Add the special element
-            if (line.trim() !== '') {
+            handleListItem(line, isLast);
+            return;
+          }
+
+          // If we were in a list and now we're not
+          if (listContext.inList && !line.match(/^\s+/)) {
+            listContext.inList = false;
+            if (listContext.buffer) {
+              addContent(listContext.buffer);
+              listContext.buffer = '';
+            }
+          }
+
+          // Handle indented lines (part of lists)
+          if (listContext.inList && line.match(/^\s+/)) {
+            listContext.buffer += '\n' + line;
+            if (isLast) {
+              addContent(listContext.buffer);
+              listContext.buffer = '';
+              listContext.inList = false;
+            }
+            return;
+          }
+
+          // Handle other special elements
+          if (isCodeBlock || isQuote || isEmptyLine) {
+            if (currentLine) {
+              addContent(currentLine);
+              currentLine = '';
+            }
+            if (!isEmptyLine) {
               addContent(line);
             }
           } else {
-            // Accumulate normal text lines
             currentLine += (currentLine ? '\n' : '') + line;
-            
-            // If this is the last line or next line is a special element, add accumulated text
-            if (index === lines.length - 1 && currentLine) {
+            if (isLast && currentLine) {
               addContent(currentLine);
               currentLine = '';
             }

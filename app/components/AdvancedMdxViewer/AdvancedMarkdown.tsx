@@ -71,21 +71,41 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
     ul: (props: MarkdownComponentProps) => (
       <ul 
         {...props} 
-        className="list-disc list-inside space-y-2 mb-4 ml-4"
+        className="list-disc space-y-2 mb-4 ml-4"
       />
     ),
-    ol: (props: MarkdownComponentProps) => (
-      <ol 
-        {...props} 
-        className="list-decimal list-inside space-y-2 mb-4 ml-4"
-      />
-    ),
-    li: (props: MarkdownComponentProps) => (
-      <li 
-        {...props} 
-        className="text-card-foreground leading-relaxed"
-      />
-    ),
+    ol: (props: MarkdownComponentProps) => {
+      const hasNestedContent = React.Children.toArray(props.children).some(
+        child => typeof child === 'object' && 'type' in child
+      );
+      
+      return (
+        <ol 
+          {...props} 
+          className={clsx(
+            "space-y-2 mb-4",
+            hasNestedContent ? "ml-8" : "ml-4",
+            "list-decimal"
+          )}
+        />
+      );
+    },
+    li: (props: MarkdownComponentProps) => {
+      const hasNestedContent = React.Children.toArray(props.children).some(
+        child => typeof child === 'object' && 'type' in child
+      );
+      
+      return (
+        <li 
+          {...props} 
+          className={clsx(
+            "text-card-foreground leading-relaxed",
+            hasNestedContent && "ml-4",
+            "pl-1"
+          )}
+        />
+      );
+    },
     code: ({ inline, className, children, ...props }: MarkdownComponentProps) => {
       const content = React.Children.toArray(children).join('').trim();
       console.log('Code block className:', className);
