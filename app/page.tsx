@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react';
 import JsonViewer from './components/JsonViewer/JsonViewer';
 import MarkdownEditor from './components/MarkdownEditor/MarkdownEditor';
 import HtmlPreview from './components/HtmlPreview/HtmlPreview';
-import GlbViewer from './components/GlbViewer/GlbViewer';
 import MdxViewer from './components/MdxViewer/MdxViewer';
 import AdvancedMdxViewer from './components/AdvancedMdxViewer/AdvancedMdxViewer';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -13,7 +12,7 @@ export default function Home() {
   const [jsonData, setJsonData] = useState<any>(null);
   const [markdownContent, setMarkdownContent] = useState<string>('');
   const [mdxContent, setMdxContent] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | '3d' | 'mdx' | 'advanced-mdx'>('json');
+  const [activeTab, setActiveTab] = useState<'json' | 'markdown' | 'html' | 'mdx' | 'advanced-mdx'>('json');
 
   // Fetch the data when the component mounts
   useEffect(() => {
@@ -27,7 +26,8 @@ export default function Home() {
       .then(content => setMarkdownContent(content))
       .catch(err => console.error('Error loading markdown:', err));
 
-    fetch(window.location.origin + '/sample.mdx')
+    // Load our new ducks preview file
+    fetch(window.location.origin + '/ducks-preview.mdx')
       .then(res => res.text())
       .then(content => setMdxContent(content))
       .catch(err => console.error('Error loading MDX:', err));
@@ -83,16 +83,6 @@ export default function Home() {
             HTML Preview
           </button>
           <button
-            onClick={() => setActiveTab('3d')}
-            className={`px-6 py-3 rounded-lg transition-colors ${
-              activeTab === '3d'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-            }`}
-          >
-            3D Viewer
-          </button>
-          <button
             onClick={() => setActiveTab('mdx')}
             className={`px-6 py-3 rounded-lg transition-colors ${
               activeTab === 'mdx'
@@ -134,8 +124,6 @@ export default function Home() {
               />
             ) : activeTab === 'html' ? (
               <HtmlPreview />
-            ) : activeTab === '3d' ? (
-              <GlbViewer modelPath="/glb/sample.glb" />
             ) : activeTab === 'mdx' ? (
               <MdxViewer content={mdxContent} />
             ) : (

@@ -1,0 +1,117 @@
+# Welcome to the Preview
+
+This is a demonstration of the AdvancedMdxViewer's capabilities. Let's explore various content types and see how they're rendered.
+
+## Text Formatting
+
+You can write text in **bold**, *italic*, or ***both***. You can also use `inline code` for technical terms.
+
+## Lists and Structure
+
+Here's a list of features:
+- Automatic pagination by h1 headers
+- Smooth transitions between pages
+- Responsive container sizing
+- Clean code block rendering
+
+You can also use ordered lists:
+1. First item
+2. Second item
+   - With nested items
+   - And more nesting
+3. Third item
+
+## Code Examples
+
+Here's a simple TypeScript interface:
+
+```typescript
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  preferences: {
+    theme: 'light' | 'dark';
+    notifications: boolean;
+  };
+}
+```
+
+And some React code:
+
+```tsx
+function UserProfile({ user }: { user: User }) {
+  return (
+    <div className="profile">
+      <h2>{user.name}</h2>
+      <p>{user.email}</p>
+      <ThemeToggle theme={user.preferences.theme} />
+    </div>
+  );
+}
+```
+
+# Second Page
+
+This content will appear on a new page because it starts with an h1 header.
+
+## Quotes and References
+
+You can include blockquotes:
+
+> "The best way to predict the future is to invent it."
+> - Alan Kay
+
+And another nested quote:
+> Outer quote
+> > Inner quote
+> > > Deepest quote
+
+## More Code Examples
+
+Here's a Python example:
+
+```python
+def fibonacci(n: int) -> list[int]:
+    sequence = [0, 1]
+    while len(sequence) < n:
+        sequence.append(sequence[-1] + sequence[-2])
+    return sequence
+
+print(fibonacci(10))  # [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+```
+
+# Final Page
+
+This is the last page of our preview. Let's try some more markdown features.
+
+## Tables
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Pagination | ✅ | Works with h1 headers |
+| Code Blocks | ✅ | Syntax highlighting |
+| Navigation | ✅ | Smooth transitions |
+| Responsive | ✅ | Resizable container |
+
+## Links
+
+- [Visit our GitHub](https://github.com)
+- [Read the docs](https://docs.example.com)
+- [Contact support](mailto:support@example.com)
+
+## Final Code Example
+
+```javascript
+// An async function example
+async function fetchUserData() {
+  try {
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch user:', error);
+    return null;
+  }
+}
+``` 

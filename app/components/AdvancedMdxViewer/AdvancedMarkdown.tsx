@@ -88,33 +88,74 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
     ),
     code: ({ inline, className, children, ...props }: MarkdownComponentProps) => {
       const content = React.Children.toArray(children).join('').trim();
+      console.log('Code block className:', className);
+      const match = /language-(\w+)/.exec(className || '');
+      const language = match ? match[1] : '';
+      console.log('Detected language:', language);
       
       if (!content) return null;
       
+      if (inline) {
+        return (
+          <code
+            className={clsx(
+              "px-1.5 py-0.5 rounded-md bg-code-bg font-mono text-sm",
+              className
+            )}
+            {...props}
+          >
+            {content}
+          </code>
+        );
+      }
+
+      // For block code, ensure we pass the language class
       return (
-        <code
-          className={clsx(
-            inline ? "px-1.5 py-0.5 rounded-md" : "",
-            "bg-code-bg font-mono text-sm",
-            className
-          )}
+        <code 
+          className={clsx("font-mono text-sm block", className)} 
+          data-language={language}
           {...props}
         >
           {content}
         </code>
       );
     },
-    pre: ({ children, ...props }) => (
-      <pre 
-        className={clsx(
-          "my-6 p-4 rounded-lg bg-code-bg",
-          "border border-border"
-        )}
-        {...props}
-      >
-        {children}
-      </pre>
-    ),
+    pre: ({ children, className, ...props }) => {
+      // Find the code element inside pre
+      const codeElement = React.Children.toArray(children).find(
+        child => React.isValidElement(child) && child.type === 'code'
+      ) as React.ReactElement | undefined;
+
+      console.log('Pre block children:', children);
+      console.log('Code element:', codeElement);
+
+      // If no code element found, render pre as is
+      if (!codeElement) {
+        return <pre {...props}>{children}</pre>;
+      }
+
+      // Get the language from the code element's data attribute
+      const language = codeElement.props['data-language'];
+      console.log('Language from data attribute:', language);
+
+      return (
+        <pre 
+          className={clsx(
+            "my-6 p-4 rounded-lg bg-code-bg overflow-x-auto",
+            "border border-border",
+            className
+          )}
+          {...props}
+        >
+          {language && (
+            <div className="text-xs font-mono text-muted-foreground mb-2">
+              {language}
+            </div>
+          )}
+          {codeElement}
+        </pre>
+      );
+    },
     blockquote: props => (
       <blockquote 
         {...props} 

@@ -1,229 +1,114 @@
 # Advanced MDX Viewer
 
-Welcome to the Advanced MDX Viewer documentation. This component extends our base MDX viewer with enhanced features and capabilities.
-
-## Overview
-
-The Advanced MDX Viewer builds upon our standard MDX viewer, adding:
-
-- Table of Contents navigation
-- Search functionality
-- Dark/Light theme switching
-- Zoom controls for code blocks
-- Copy to clipboard functionality
-- Keyboard shortcuts
-- Collapsible sections
-- Progress indicator
-- Print mode
-- Mobile-optimized view
-
-## Installation
-
-```bash
-npm install @mdx-js/react react-markdown remark-gfm
-```
-
-## Component Structure
-
-```typescript
-interface AdvancedMdxViewerProps {
-  content: string;
-  theme?: 'light' | 'dark' | 'system';
-  initialPage?: number;
-  showToc?: boolean;
-  showProgress?: boolean;
-  enableSearch?: boolean;
-  enableKeyboardNav?: boolean;
-  onPageChange?: (page: number) => void;
-  onThemeChange?: (theme: string) => void;
-}
-```
+The Advanced MDX Viewer is a React component that renders markdown content with pagination and a clean interface.
 
 ## Features
 
-### Table of Contents
+- Page-based content navigation
+- Responsive resizable container
+- Clean code block rendering
+- Smooth page transitions
+- Automatic content pagination
 
-The ToC provides:
-- Automatic generation from headers
-- Collapsible sections
-- Active section highlighting
-- Smooth scrolling
-- Sticky positioning
-
-### Search Functionality
-
-Full-text search with:
-- Instant results
-- Highlight matches
-- Search history
-- Keyboard navigation
-- Advanced filters
-
-### Theme Support
-
-Comprehensive theming:
-- Light/Dark modes
-- System preference detection
-- Custom color schemes
-- Persistent preferences
-- Smooth transitions
-
-### Code Blocks
-
-Enhanced code display:
-- Syntax highlighting
-- Line numbers
-- Copy button
-- Language detection
-- Zoom controls
-- Word wrap toggle
-
-### Keyboard Navigation
-
-Intuitive shortcuts:
-- `←/→` - Previous/Next page
-- `Ctrl+F` - Search
-- `Esc` - Close overlays
-- `+/-` - Zoom in/out
-- `Ctrl+P` - Print mode
-
-### Mobile Experience
-
-Optimized for mobile:
-- Responsive layout
-- Touch gestures
-- Collapsible navigation
-- Readable typography
-- Offline support
-
-## Usage Examples
-
-### Basic Setup
+## Usage
 
 ```typescript
-import AdvancedMdxViewer from '../components/AdvancedMdxViewer';
+import AdvancedMdxViewer from './components/AdvancedMdxViewer';
 
 function Documentation() {
   return (
     <AdvancedMdxViewer
-      content={content}
-      theme="system"
-      showToc={true}
-      showProgress={true}
-      enableSearch={true}
-      enableKeyboardNav={true}
+      content={`
+# Page 1
+Content for first page...
+
+# Page 2
+Content for second page...
+      `}
     />
   );
 }
 ```
 
-### Custom Theme
+## Props
 
 ```typescript
-<AdvancedMdxViewer
-  content={content}
-  theme="dark"
-  onThemeChange={(theme) => {
-    console.log(`Theme changed to: ${theme}`);
-    // Update system theme
-  }}
-/>
-```
-
-### With Event Handlers
-
-```typescript
-<AdvancedMdxViewer
-  content={content}
-  initialPage={2}
-  onPageChange={(page) => {
-    console.log(`Navigated to page: ${page}`);
-    // Update URL or state
-  }}
-/>
-```
-
-## Styling
-
-### Theme Variables
-
-```css
-.advanced-mdx-viewer {
-  /* Colors */
-  --primary: #60a5fa;
-  --secondary: #f472b6;
-  --background: #1a1b26;
-  --text: #c0caf5;
-  --code-bg: #1f2335;
-  --border: #414868;
-
-  /* Typography */
-  --font-main: 'Space Grotesk';
-  --font-code: 'JetBrains Mono';
-  
-  /* Spacing */
-  --spacing-base: 1rem;
-  --radius: 0.5rem;
+interface AdvancedMdxViewerProps {
+  content: string;        // The markdown content to display
+  designSystem?: string;  // Optional design system override
 }
 ```
 
-### Customization
+## Content Structure
 
-```typescript
-<AdvancedMdxViewer
-  content={content}
-  styles={{
-    viewer: {
-      maxWidth: '1200px',
-      margin: '0 auto',
-    },
-    toc: {
-      width: '280px',
-      position: 'sticky',
-    },
-    content: {
-      fontSize: '1.125rem',
-      lineHeight: 1.7,
-    },
-  }}
-/>
+The viewer automatically splits content into pages based on h1 headers:
+
+```markdown
+# First Page Title
+This content will be on page 1...
+
+## A Section
+More content for page 1...
+
+# Second Page Title
+This will be on page 2...
+
+## Another Section
+More content for page 2...
 ```
 
-## Best Practices
+## Supported Markdown
 
-1. **Performance**
-   - Lazy load images
-   - Code splitting
-   - Memoize components
-   - Virtual scrolling for long content
+1. **Headers (h1-h3)**
+   ```markdown
+   # Main Title (h1)
+   ## Section Title (h2)
+   ### Subsection Title (h3)
+   ```
 
-2. **Accessibility**
-   - ARIA labels
-   - Keyboard navigation
-   - High contrast mode
-   - Screen reader support
+2. **Text Formatting**
+   ```markdown
+   Regular text
+   *Italic text*
+   **Bold text**
+   ```
 
-3. **SEO**
-   - Semantic HTML
-   - Meta descriptions
-   - Structured data
-   - Sitemap generation
+3. **Lists**
+   ```markdown
+   - Unordered list
+   - Another item
+     - Nested item
 
-## Browser Support
+   1. Ordered list
+   2. Second item
+      - Mixed nesting
+   ```
 
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Mobile browsers
+4. **Code**
+   ````markdown
+   Inline `code` and:
 
-## Contributing
+   ```typescript
+   function example() {
+     return "Hello!";
+   }
+   ```
+   ````
 
-1. Fork the repository
-2. Create feature branch
-3. Make changes
-4. Submit pull request
+5. **Blockquotes**
+   ```markdown
+   > This is a quote
+   > It can span multiple lines
+   ```
 
-## License
+6. **Links**
+   ```markdown
+   [Link text](https://example.com)
+   ```
 
-MIT License - see LICENSE file for details. 
+## Navigation
+
+- Use the Previous/Next buttons to move between pages
+- Current page and total pages are shown in the header
+- Smooth transitions between pages
+- Resizable container for comfortable reading 

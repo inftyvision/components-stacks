@@ -1,139 +1,42 @@
-# Component Stack Documentation
+# Component Stack
 
-Welcome to the Component Stack documentation. This guide provides comprehensive information about our component architecture, design patterns, and best practices.
-
-## Overview
-
-The Component Stack is a modern, modular architecture for building scalable React applications. It emphasizes:
-
-- Type safety with TypeScript
-- Component reusability
-- Consistent styling
-- Documentation-driven development
-- Interactive development experience
+A collection of React components for building modern documentation and content viewing experiences.
 
 ## Project Structure
 
 ```bash
 components-stacks/
 ├── app/
-│   ├── components/         # Reusable components
-│   │   ├── JsonViewer/    # JSON editor & viewer
-│   │   ├── MarkdownEditor/# Markdown editor with preview
-│   │   ├── MdxViewer/     # MDX documentation viewer
-│   │   ├── HtmlPreview/   # HTML preview component
-│   │   └── GlbViewer/     # 3D model viewer
-│   ├── styles/            # Global and component styles
-│   └── layout.tsx         # Root layout component
-├── src/
-│   └── docs/             # Component documentation
-└── public/               # Static assets and examples
+│   ├── components/         # React components
+│   │   └── AdvancedMdxViewer/  # MDX viewer component
+│   └── styles/            # Global styles
+└── src/
+    └── docs/             # Documentation
 ```
 
-## Component Architecture
+## Components
 
-Each component in our stack follows a consistent structure:
+### AdvancedMdxViewer
 
-```typescript
-components/
-└── ComponentName/
-    ├── ComponentName.tsx     # Main component
-    ├── ComponentName.test.ts # Tests
-    ├── types.ts             # TypeScript interfaces
-    └── index.ts             # Public exports
-```
-
-### Component Requirements
-
-1. **TypeScript**
-   - Strict type checking enabled
-   - Interfaces for all props
-   - Generic types where applicable
-   - Type exports for public API
-
-2. **Styling**
-   - CSS modules or styled-components
-   - Theme variables
-   - Responsive design
-   - Dark/light mode support
-
-3. **Documentation**
-   - Component description
-   - Props documentation
-   - Usage examples
-   - Edge cases and limitations
-
-4. **Testing**
-   - Unit tests
-   - Integration tests
-   - Visual regression tests
-   - Accessibility tests
-
-## Available Components
-
-### JsonViewer
-The JsonViewer component provides an interactive JSON editor and viewer with:
+A documentation viewer that renders markdown content with pagination:
 
 ```typescript
-interface JsonViewerProps {
-  data: any;
-  onDataChange?: (newData: any) => void;
-  readOnly?: boolean;
-  theme?: 'light' | 'dark';
+interface AdvancedMdxViewerProps {
+  content: string;        // Markdown content to display
+  designSystem?: string;  // Optional design system
 }
 ```
 
 Features:
-- Syntax highlighting
-- Tree view navigation
-- Edit capabilities
-- Copy/paste support
-- Error validation
-
-### MarkdownEditor
-A dual-pane markdown editor with live preview:
-
-```typescript
-interface MarkdownEditorProps {
-  content: string;
-  onChange?: (newContent: string) => void;
-  preview?: boolean;
-  toolbar?: boolean;
-}
-```
-
-Features:
-- Live preview
-- Syntax highlighting
-- Toolbar with common actions
-- File drag & drop
-- Image uploads
-
-### MdxViewer
-Documentation viewer with rich formatting and navigation:
-
-```typescript
-interface MdxViewerProps {
-  content: string;
-  theme?: {
-    primary: string;
-    secondary: string;
-    background: string;
-    text: string;
-  };
-}
-```
-
-Features:
-- Custom styling
-- Code syntax highlighting
-- Page navigation
+- Page-based navigation
 - Responsive design
-- Table of contents
+- Code block rendering
+- Smooth transitions
+- Automatic pagination
 
-## Styling Guidelines
+## Styling
 
-### Theme Variables
+The components use a consistent theme system:
 
 ```css
 :root {
@@ -144,170 +47,37 @@ Features:
   --background-secondary: #24283b;
   --text-primary: #c0caf5;
   --text-secondary: #9aa5ce;
-
-  /* Typography */
-  --font-primary: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-size-base: 16px;
-  --line-height-base: 1.5;
-
-  /* Spacing */
-  --spacing-unit: 0.25rem;
-  --spacing-small: var(--spacing-unit);
-  --spacing-medium: calc(var(--spacing-unit) * 2);
-  --spacing-large: calc(var(--spacing-unit) * 4);
-
-  /* Borders */
-  --border-radius: 0.5rem;
-  --border-width: 1px;
+  --code-bg: #1f2335;
   --border-color: #414868;
 
-  /* Transitions */
-  --transition-fast: 0.2s;
-  --transition-medium: 0.3s;
-  --transition-slow: 0.5s;
+  /* Typography */
+  --font-primary: system-ui, sans-serif;
+  --font-mono: monospace;
+  --font-size-base: 16px;
 }
 ```
 
-### Component Styling
+## Usage Example
 
-Components should:
-1. Use CSS modules or styled-components
-2. Reference theme variables
-3. Support dark/light modes
-4. Be responsive by default
-5. Use consistent spacing
-6. Follow accessibility guidelines
+```typescript
+import AdvancedMdxViewer from './components/AdvancedMdxViewer';
 
-## Best Practices
+function Documentation() {
+  return (
+    <AdvancedMdxViewer
+      content={`
+# Introduction
+Welcome to the documentation.
 
-### Component Development
+# Getting Started
+Let's begin with a simple example:
 
-1. **Single Responsibility**
-   - Each component should do one thing well
-   - Break down complex components
-   - Use composition over inheritance
-
-2. **Props Interface**
-   ```typescript
-   interface ComponentProps {
-     required: string;
-     optional?: number;
-     callback?: (value: string) => void;
-     children?: React.ReactNode;
-   }
-   ```
-
-3. **Error Handling**
-   ```typescript
-   try {
-     // Component logic
-   } catch (error) {
-     console.error('Component error:', error);
-     return <ErrorBoundary error={error} />;
-   }
-   ```
-
-4. **Performance**
-   - Use React.memo for pure components
-   - Implement useMemo and useCallback
-   - Lazy load when appropriate
-   - Optimize re-renders
-
-### Documentation
-
-1. **Component Documentation**
-   ```typescript
-   /**
-    * ComponentName description
-    *
-    * @param {string} prop1 - Description of prop1
-    * @param {number} [prop2] - Optional prop2
-    * @returns {JSX.Element} Rendered component
-    *
-    * @example
-    * <ComponentName prop1="value" prop2={42} />
-    */
-   ```
-
-2. **Usage Examples**
-   ```typescript
-   // Basic usage
-   <Component prop="value" />
-
-   // With all options
-   <Component
-     required="value"
-     optional={42}
-     callback={(value) => console.log(value)}
-   >
-     Child content
-   </Component>
-   ```
-
-3. **Edge Cases**
-   - Document limitations
-   - Provide workarounds
-   - List known issues
-
-## Contributing
-
-1. **Setup Development Environment**
-   ```bash
-   git clone https://github.com/your-org/components-stack
-   cd components-stack
-   npm install
-   npm run dev
-   ```
-
-2. **Create New Component**
-   ```bash
-   # Create component structure
-   mkdir -p app/components/NewComponent
-   touch app/components/NewComponent/{index.ts,NewComponent.tsx,types.ts}
-   ```
-
-3. **Testing**
-   ```bash
-   # Run tests
-   npm run test
-   
-   # Run specific component tests
-   npm run test ComponentName
-   ```
-
-4. **Documentation**
-   - Update component docs
-   - Add usage examples
-   - Update this guide if needed
-
-## Deployment
-
-1. **Build**
-   ```bash
-   npm run build
-   ```
-
-2. **Testing**
-   ```bash
-   npm run test
-   npm run lint
-   ```
-
-3. **Release**
-   ```bash
-   npm version patch|minor|major
-   npm publish
-   ```
-
-## Support
-
-For issues and feature requests:
-1. Check existing issues
-2. Create detailed bug report
-3. Provide minimal reproduction
-4. Follow issue template
-
-## License
-
-This component stack is licensed under the MIT License. See LICENSE file for details. 
+\`\`\`typescript
+function hello() {
+  console.log("Hello!");
+}
+\`\`\`
+      `}
+    />
+  );
+} 
