@@ -11,6 +11,7 @@ import '../../styles/mdx-theme.css';
 interface AdvancedMdxViewerProps {
   content: string;
   designSystem?: string;
+  contentRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface ViewportSize {
@@ -29,11 +30,11 @@ interface ContentBlock {
   height?: number;
 }
 
-export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdxViewerProps) {
+export default function AdvancedMdxViewer({ content, designSystem, contentRef }: AdvancedMdxViewerProps) {
   const [currentPage, setCurrentPage] = useState(0);
   const [viewportSize, setViewportSize] = useState<ViewportSize>({ width: 600, height: 600 });
   const [virtualPages, setVirtualPages] = useState<VirtualPage[]>([]);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const internalContentRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout>();
 
@@ -352,9 +353,9 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
             </div>
           </div>
           
-          <div ref={contentRef} className="flex-1 relative overflow-hidden">
+          <div ref={internalContentRef} className="flex-1 relative overflow-hidden">
             <div className="absolute inset-0 p-6">
-              <div className="content-container h-full">
+              <div className="content-container">
                 <AdvancedMarkdown
                   content={content}
                   onCopy={handleCopy}
@@ -434,7 +435,7 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
           </div>
         </div>
         
-        <div ref={contentRef} className="flex-1 relative overflow-hidden">
+        <div ref={contentRef || internalContentRef} className="flex-1 relative overflow-hidden">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentPage}
@@ -444,11 +445,12 @@ export default function AdvancedMdxViewer({ content, designSystem }: AdvancedMdx
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
               className="absolute inset-0 p-6"
             >
-              <div className="content-container h-full">
+              <div className="content-container">
                 <AdvancedMarkdown
                   content={virtualPages[currentPage]?.content || content}
                   onCopy={handleCopy}
                   onZoom={handleZoom}
+                  contentRef={contentRef}
                 />
               </div>
             </motion.div>

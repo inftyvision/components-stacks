@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
 import rehypeRaw from 'rehype-raw';
 import type { ComponentProps } from 'react';
-import { ClipboardIcon, CheckIcon, MagnifyingGlassMinusIcon, MagnifyingGlassPlusIcon } from '@heroicons/react/24/outline';
+import { 
+  ClipboardIcon, 
+  CheckIcon, 
+  MagnifyingGlassMinusIcon, 
+  MagnifyingGlassPlusIcon
+} from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 import React from 'react';
 
@@ -16,6 +21,7 @@ interface AdvancedMarkdownProps {
   onCopy?: (text: string) => void;
   onZoom?: (level: number) => void;
   className?: string;
+  contentRef?: React.RefObject<HTMLDivElement>;
 }
 
 interface MarkdownComponentProps extends React.HTMLAttributes<HTMLElement> {
@@ -24,9 +30,10 @@ interface MarkdownComponentProps extends React.HTMLAttributes<HTMLElement> {
   inline?: boolean;
 }
 
-const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, onZoom, className }) => {
+const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, onZoom, className, contentRef }) => {
   const [copiedMap, setCopiedMap] = useState<Record<string, boolean>>({});
   const [zoomLevel, setZoomLevel] = useState(1);
+  const internalRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = async (text: string, blockId: string) => {
     await navigator.clipboard.writeText(text);
@@ -47,7 +54,7 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
     h1: (props: MarkdownComponentProps) => (
       <h1 
         {...props} 
-        className="text-2xl font-bold text-card-foreground mb-6 pb-2 border-b border-border"
+        className="text-2xl font-bold text-card-foreground mb-6"
       />
     ),
     h2: (props: MarkdownComponentProps) => (
@@ -68,39 +75,67 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
         className="text-base text-card-foreground leading-relaxed mb-4"
       />
     ),
-    ul: (props: MarkdownComponentProps) => (
-      <ul 
-        {...props} 
-        className="list-disc space-y-2 mb-4 ml-4"
-      />
-    ),
-    ol: (props: MarkdownComponentProps) => {
-      const hasNestedContent = React.Children.toArray(props.children).some(
-        child => typeof child === 'object' && 'type' in child
+    ul: (props: MarkdownComponentProps) => {
+      const depth = React.Children.toArray(props.children).reduce((maxDepth, child) => {
+        if (typeof child === 'object' && 'props' in child && 'depth' in child.props) {
+          const childDepth = Number(child.props.depth) || 0;
+          return Math.max(maxDepth as number, childDepth);
+        }
+        return maxDepth;
+      }, 0);
+
+      return (
+        <ul 
+          {...props} 
+          className={clsx(
+            "space-y-2 mb-4",
+            depth === 0 ? "ml-4" : "ml-6",
+            depth === 0 ? "list-disc" : "list-circle"
+          )}
+        />
       );
+    },
+    ol: (props: MarkdownComponentProps) => {
+      const depth = React.Children.toArray(props.children).reduce((maxDepth, child) => {
+        if (typeof child === 'object' && 'props' in child && 'depth' in child.props) {
+          const childDepth = Number(child.props.depth) || 0;
+          return Math.max(maxDepth as number, childDepth);
+        }
+        return maxDepth;
+      }, 0);
+
+      const listStyle = depth === 0 ? "decimal" : 
+                       depth === 1 ? "lower-alpha" : 
+                       depth === 2 ? "lower-roman" : "decimal";
       
       return (
         <ol 
           {...props} 
           className={clsx(
             "space-y-2 mb-4",
-            hasNestedContent ? "ml-8" : "ml-4",
-            "list-decimal"
+            depth === 0 ? "ml-4" : "ml-6",
+            `list-${listStyle}`
           )}
         />
       );
     },
     li: (props: MarkdownComponentProps) => {
-      const hasNestedContent = React.Children.toArray(props.children).some(
-        child => typeof child === 'object' && 'type' in child
+      const hasNestedList = React.Children.toArray(props.children).some(
+        child => typeof child === 'object' && 'type' in child && 
+        (child.type === 'ul' || child.type === 'ol')
       );
       
+      const hasMultipleBlocks = React.Children.toArray(props.children).filter(
+        child => typeof child === 'object' && 'type' in child
+      ).length > 1;
+
       return (
         <li 
           {...props} 
           className={clsx(
             "text-card-foreground leading-relaxed",
-            hasNestedContent && "ml-4",
+            hasNestedList && "mt-2",
+            hasMultipleBlocks && "space-y-2",
             "pl-1"
           )}
         />
@@ -108,10 +143,9 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
     },
     code: ({ inline, className, children, ...props }: MarkdownComponentProps) => {
       const content = React.Children.toArray(children).join('').trim();
-      console.log('Code block className:', className);
       const match = /language-(\w+)/.exec(className || '');
       const language = match ? match[1] : '';
-      console.log('Detected language:', language);
+      const blockId = React.useId();
       
       if (!content) return null;
       
@@ -129,14 +163,31 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
         );
       }
 
-      // For block code, ensure we pass the language class
       return (
         <code 
-          className={clsx("font-mono text-sm block", className)} 
+          className={clsx(
+            "font-mono text-sm block relative group",
+            className
+          )} 
           data-language={language}
           {...props}
         >
           {content}
+          <button
+            onClick={() => handleCopy(content, blockId)}
+            className={clsx(
+              "absolute top-2 right-2 p-2 rounded-md",
+              "opacity-0 group-hover:opacity-100 transition-opacity",
+              "hover:bg-primary/10"
+            )}
+            aria-label="Copy code"
+          >
+            {copiedMap[blockId] ? (
+              <CheckIcon className="h-4 w-4 text-green-500" />
+            ) : (
+              <ClipboardIcon className="h-4 w-4 text-muted-foreground" />
+            )}
+          </button>
         </code>
       );
     },
@@ -202,11 +253,43 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
         className="italic text-card-foreground"
       />
     ),
-    table: props => (
-      <div className="my-6 w-full">
-        <table {...props} className="w-full border-collapse" />
-      </div>
-    ),
+    table: props => {
+      const [isScrollable, setIsScrollable] = useState(false);
+      const tableRef = useRef<HTMLTableElement>(null);
+
+      useEffect(() => {
+        const checkOverflow = () => {
+          if (tableRef.current) {
+            setIsScrollable(tableRef.current.scrollWidth > tableRef.current.clientWidth);
+          }
+        };
+
+        checkOverflow();
+        window.addEventListener('resize', checkOverflow);
+        return () => window.removeEventListener('resize', checkOverflow);
+      }, []);
+
+      return (
+        <div className={clsx(
+          "my-6 w-full",
+          isScrollable && "overflow-x-auto shadow-sm"
+        )}>
+          <table 
+            {...props} 
+            ref={tableRef}
+            className={clsx(
+              "w-full border-collapse",
+              isScrollable && "min-w-[600px]"
+            )} 
+          />
+          {isScrollable && (
+            <div className="text-xs text-muted-foreground mt-2 text-center">
+              ← Scroll horizontally to see more →
+            </div>
+          )}
+        </div>
+      );
+    },
     th: props => (
       <th 
         {...props} 
@@ -222,17 +305,49 @@ const AdvancedMarkdown: React.FC<AdvancedMarkdownProps> = ({ content, onCopy, on
     hr: () => (
       <hr className="my-8 border-border" />
     ),
-    img: props => (
-      <img
-        {...props}
-        className="max-w-full h-auto rounded-lg shadow-sm my-6"
-        loading="lazy"
-      />
-    ),
+    img: props => {
+      const [isZoomed, setIsZoomed] = useState(false);
+      const [isLoaded, setIsLoaded] = useState(false);
+
+      return (
+        <div className="relative group">
+          <img
+            {...props}
+            className={clsx(
+              "max-w-full h-auto rounded-lg shadow-sm my-6 transition-transform duration-200",
+              isZoomed ? "scale-150 cursor-zoom-out" : "cursor-zoom-in",
+              !isLoaded && "blur-sm"
+            )}
+            loading="lazy"
+            onClick={() => setIsZoomed(!isZoomed)}
+            onLoad={() => setIsLoaded(true)}
+          />
+          <div className={clsx(
+            "absolute top-2 right-2 space-x-2",
+            "opacity-0 group-hover:opacity-100 transition-opacity"
+          )}>
+            <button
+              onClick={() => handleZoom(-0.1)}
+              className="p-2 rounded-md hover:bg-primary/10"
+              aria-label="Zoom out"
+            >
+              <MagnifyingGlassMinusIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <button
+              onClick={() => handleZoom(0.1)}
+              className="p-2 rounded-md hover:bg-primary/10"
+              aria-label="Zoom in"
+            >
+              <MagnifyingGlassPlusIcon className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
+        </div>
+      );
+    },
   };
 
   return (
-    <div className={clsx("prose prose-invert max-w-none", className)}>
+    <div ref={contentRef || internalRef} className="prose prose-invert">
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkParse]}
         rehypePlugins={[rehypeRaw]}
